@@ -1,6 +1,6 @@
 from cooker import SoupCooker
 from bs4 import BeautifulSoup
-from mmGUI import mmGUI
+from mmGUIv2 import mmGUI
 import unicodedata
 
 class MusicManager:
