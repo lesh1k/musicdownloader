@@ -23,7 +23,7 @@ class MusicManager:
 		self.search_soup = SoupCooker(self.query).getSoup()
 		self.results = self.search_soup.find_all('li', {'class':'track'})
 		if len(self.results) > count:
-			self.results = self.results[:5]
+			self.results = self.results[:count]
 
 	def parseResults(self):
 		if not hasattr(self,'results'):
@@ -38,11 +38,11 @@ class MusicManager:
 				'dl_link' : self.dl_link_base+self.normalizeUnicode(data['data-aid'])
 			}
 
-	def getSearchResults(self,count=5):
+	def getSearchResults(self,count=17):
 		if hasattr(self,'results'):
 			return self.results
 		else:
-			self.searchResults()
+			self.searchResults(count)
 			return self.results
 
 	def getParsedResults(self):

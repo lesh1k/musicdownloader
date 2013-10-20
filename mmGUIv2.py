@@ -6,6 +6,8 @@ import wx
 import os
 import urllib2 #for file downloading
 from threading import Thread
+import time
+from proxy_class import caching_proxy
 
 # begin wxGlade: extracode
 # end wxGlade
@@ -21,6 +23,10 @@ class mmGUI_widget(wx.Frame):
         self.thread_dict = {}#will hold references to all threads
         #all controls holder (holds references to all buttons, inputs, etc.)
         self.controls={}
+
+        #initialize caching proxy object
+        self.caching_proxy = caching_proxy()
+        self.queue = 0
 
         #holds controls for a single row
         one_set_of_controls = {}
@@ -185,25 +191,35 @@ class mmGUI_widget(wx.Frame):
         #Disable button
         self.controls[track_id]['dl_btn_'+str(track_id)].Enable(False)
 
-        #Download and save
-        cHandle = urllib2.urlopen(self.data[track_id]['dl_link'])
-        print 'Downloading: ' + self.data[track_id]['title']
-        music_track = cHandle.read()
-        print "Done!"
-        cHandle.close()
+        #verify if track was not previously downloaded
+        if os.path.isfile(os.path.join(downloads_path,self.data[track_id]['title']+'.mp3')):
+            print 'Track available: ' + self.data[track_id]['title']
+        else:
+            #Download and save
+            cHandle = urllib2.urlopen(self.data[track_id]['dl_link'])
+            print 'Downloading: ' + self.data[track_id]['title']
+            music_track = cHandle.read()
+            print "Download Complete! " + self.data[track_id]['title']
+            cHandle.close()
 
-        fHandle = open(os.path.join(downloads_path,self.data[track_id]['title']+'.mp3'), 'wb')
-        fHandle.write(music_track)
-        fHandle.close()
+            fHandle = open(os.path.join(downloads_path,self.data[track_id]['title']+'.mp3'), 'wb')
+            fHandle.write(music_track)
+            fHandle.close()
+            print 'Success!'
 
         #Enable button
         self.controls[track_id]['dl_btn_'+str(track_id)].Enable(True)
 
-        print 'Success!'
+        self.queue -= 1
+        if self.queue < 1:
+            self.queue = 0
+            print 'Batch complete!'
+
 
     def doParallelDownload(self, event):
         self.thread_dict[event.GetId()] = Thread(target=self.doDownload, args=(event.GetId(),))
-        self.thread_dict[event.GetId()].start()
+        self.caching_proxy.addRequest(self.thread_dict[event.GetId()])
+        self.queue += 1
         event.Skip()
 
     def doRestart(self, event):  # wxGlade: mmGUI.<event_handler>
