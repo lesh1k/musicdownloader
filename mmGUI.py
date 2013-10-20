@@ -18,6 +18,7 @@ class mmGUI_widget(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
 
         self.data = media_data
+        self.thread_dict = {}#will hold references to all threads
         #all controls holder (holds references to all buttons, inputs, etc.)
         self.controls={}
 
@@ -56,9 +57,9 @@ class mmGUI_widget(wx.Frame):
         self.__set_properties()
         self.__do_layout()
 
-        #set ids for Download buttons
+        #set actions for Download buttons
         for key in self.data.keys():
-            self.Bind(wx.EVT_BUTTON, self.doDownload, id=key)
+            self.Bind(wx.EVT_BUTTON, self.doParallelDownload, id=key)
 
         #set ids for footer buttons
         self.Bind(wx.EVT_BUTTON, self.doRestart, id=-2)
@@ -135,7 +136,7 @@ class mmGUI_widget(wx.Frame):
         self.Layout()
         # end wxGlade
 
-    def doDownload(self, event):  # wxGlade: mmGUI.<event_handler>
+    def doDownload(self, track_id):  # wxGlade: mmGUI.<event_handler>
         current_path = '/'.join(__file__.split('/')[:-1])
         downloads_path = os.path.join(current_path,'Downloads')
         
@@ -143,19 +144,28 @@ class mmGUI_widget(wx.Frame):
         if not os.path.exists(downloads_path):
             os.mkdir(downloads_path)
 
+        #Disable button
+        self.controls[track_id]['dl_btn'].Enable(False)
+
         #Download and save
-        cHandle = urllib2.urlopen(self.data[event.GetId()]['dl_link'])
-        print 'Downloading....'
+        cHandle = urllib2.urlopen(self.data[track_id]['dl_link'])
+        print 'Downloading: ' + self.data[track_id]['title']
         music_track = cHandle.read()
         print "Done!"
         cHandle.close()
 
-        fHandle = open(os.path.join(downloads_path,self.data[event.GetId()]['title']+'.mp3'), 'wb')
+        fHandle = open(os.path.join(downloads_path,self.data[track_id]['title']+'.mp3'), 'wb')
         fHandle.write(music_track)
         fHandle.close()
 
+        #Enable button
+        self.controls[track_id]['dl_btn'].Enable(True)
+
         print 'Success!'
 
+    def doParallelDownload(self, event):
+        self.thread_dict[event.GetId()] = Thread(target=self.doDownload, args=(event.GetId(),))
+        self.thread_dict[event.GetId()].start()
         event.Skip()
 
     def doRestart(self, event):  # wxGlade: mmGUI.<event_handler>
