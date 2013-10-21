@@ -8,13 +8,16 @@ import urllib2 #for file downloading
 from threading import Thread
 import time
 from proxy_class import caching_proxy
-
+import logging
 # begin wxGlade: extracode
 # end wxGlade
 
 
 class mmGUI_widget(wx.Frame):
     def __init__(self, media_data, *args, **kwds):
+        self.logger = logging.getLogger('debug')
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.debug('Initializing wxWidget')
         # begin wxGlade: mmGUI.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
@@ -83,6 +86,7 @@ class mmGUI_widget(wx.Frame):
         # end wxGlade
 
     def __set_properties(self):
+        self.logger.debug('Setting widget properties')
         # begin wxGlade: mmGUI_widget.__set_properties
         self.SetTitle("mmGUI")
         self.SetSize((400,300))
@@ -122,6 +126,7 @@ class mmGUI_widget(wx.Frame):
         # end wxGlade
 
     def __do_layout(self):
+        self.logger.debug('Building wx Layout')
         # begin wxGlade: mmGUI_widget.__do_layout
         main_categories = wx.BoxSizer(wx.VERTICAL)
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
@@ -181,6 +186,7 @@ class mmGUI_widget(wx.Frame):
 
     #custom actions
     def doDownload(self, track_id):  # wxGlade: mmGUI.<event_handler>
+        self.logger.debug('Downloading track: ' + self.data[track_id]['title'])
         current_path = '/'.join(__file__.split('/')[:-1])
         downloads_path = os.path.join(current_path,'Downloads')
         
@@ -194,6 +200,7 @@ class mmGUI_widget(wx.Frame):
         #verify if track was not previously downloaded
         if os.path.isfile(os.path.join(downloads_path,self.data[track_id]['title']+'.mp3')):
             print 'Track available: ' + self.data[track_id]['title']
+            self.logger.debug('Download canceled. Track'+ self.data[track_id]['title'] +' available')
         else:
             #Download and save
             cHandle = urllib2.urlopen(self.data[track_id]['dl_link'])
@@ -201,10 +208,13 @@ class mmGUI_widget(wx.Frame):
             music_track = cHandle.read()
             print "Download Complete! " + self.data[track_id]['title']
             cHandle.close()
+            self.logger.debug('Track: ' + self.data[track_id]['title'] + ". Download complete. Writing to file.")
 
             fHandle = open(os.path.join(downloads_path,self.data[track_id]['title']+'.mp3'), 'wb')
             fHandle.write(music_track)
             fHandle.close()
+
+            self.logger.debug('Track: '+self.data[track_id]['title']+' saved.')
             print 'Success!'
 
         #Enable button
@@ -214,9 +224,13 @@ class mmGUI_widget(wx.Frame):
         if self.queue < 1:
             self.queue = 0
             print 'Batch complete!'
+            self.logger.debug('All downloads finished')
+        else:
+            print self.queue, ' still in progress...'
 
 
     def doParallelDownload(self, event):
+        self.logger.debug('Starting parallel download.')
         self.thread_dict[event.GetId()] = Thread(target=self.doDownload, args=(event.GetId(),))
         self.caching_proxy.addRequest(self.thread_dict[event.GetId()])
         self.queue += 1
