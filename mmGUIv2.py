@@ -200,7 +200,7 @@ class mmGUI_widget(wx.Frame):
         #verify if track was not previously downloaded
         if os.path.isfile(os.path.join(downloads_path,self.data[track_id]['title']+'.mp3')):
             print 'Track available: ' + self.data[track_id]['title']
-            self.logger.debug('Download canceled. Track'+ self.data[track_id]['title'] +' available')
+            self.logger.debug('Download canceled. Track: '+ self.data[track_id]['title'] +' already available')
         else:
             #Download and save
             cHandle = urllib2.urlopen(self.data[track_id]['dl_link'])
