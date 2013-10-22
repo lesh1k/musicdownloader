@@ -9,6 +9,8 @@ from threading import Thread
 import time
 from proxy_class import caching_proxy
 import logging
+# import gettext
+
 # begin wxGlade: extracode
 # end wxGlade
 
@@ -60,30 +62,12 @@ class mmGUI_widget(wx.Frame):
             one_set_of_controls['dl_btn_'+str(key)] = wx.Button(self.results_window, key, "Download", style=wx.BU_EXACTFIT)
             self.controls[key] = one_set_of_controls
 
-        # self.label_track_id = wx.StaticText(self.results_window, -1, "1.")
-        # self.label_track_title = wx.StaticText(self.results_window, -1, "The Killers -Lesha's test")
-        # self.label_track_length = wx.StaticText(self.results_window, -1, "4:40", style=wx.ALIGN_CENTRE)
-        # self.button_1 = wx.Button(self.results_window, -1, "Download", style=wx.BU_EXACTFIT)
-        # self.label_track_id_copy = wx.StaticText(self.results_window, -1, "1.")
-        # self.label_track_title_copy = wx.StaticText(self.results_window, -1, "The Killers -Lesha's test")
-        # self.label_track_length_copy = wx.StaticText(self.results_window, -1, "4:40", style=wx.ALIGN_CENTRE)
-        # self.button_1_copy = wx.Button(self.results_window, -1, "Download", style=wx.BU_EXACTFIT)
-        # self.label_track_id_copy_1 = wx.StaticText(self.results_window, -1, "1.")
-        # self.label_track_title_copy_1 = wx.StaticText(self.results_window, -1, "The Killers -Lesha's test")
-        # self.label_track_length_copy_1 = wx.StaticText(self.results_window, -1, "4:40", style=wx.ALIGN_CENTRE)
-        # self.button_1_copy_1 = wx.Button(self.results_window, -1, "Download", style=wx.BU_EXACTFIT)
-
         self.__set_properties()
         self.__do_layout()
 
         #set actions for Download buttons
         for key in self.data.keys():
             self.Bind(wx.EVT_BUTTON, self.doParallelDownload, id=key)
-
-        #set ids for footer buttons[were present in GUI v1]
-        # self.Bind(wx.EVT_BUTTON, self.doRestart, id=-2)
-        # self.Bind(wx.EVT_BUTTON, self.doClose, id=-3)
-        # end wxGlade
 
     def __set_properties(self):
         self.logger.debug('Setting widget properties')
@@ -106,20 +90,7 @@ class mmGUI_widget(wx.Frame):
             self.controls[key]['label_track_id_'+str(key)].SetMinSize((20, 15))
             self.controls[key]['label_track_title_'+str(key)].SetMinSize((260, 15))
             self.controls[key]['label_track_length_'+str(key)].SetMinSize((37, 15))
-
         
-        
-        # self.label_track_id.SetMinSize((20, 15))
-        # self.label_track_title.SetMinSize((260, 15))
-        # self.label_track_length.SetMinSize((37, 15))
-        
-        # self.label_track_id_copy.SetMinSize((20, 15))
-        # self.label_track_title_copy.SetMinSize((260, 15))
-        # self.label_track_length_copy.SetMinSize((37, 15))
-        # self.label_track_id_copy_1.SetMinSize((20, 15))
-        # self.label_track_title_copy_1.SetMinSize((260, 15))
-        # self.label_track_length_copy_1.SetMinSize((37, 15))
-
         #results table size and scroll
         self.results_window.SetMinSize((400, 200))
         self.results_window.SetScrollRate(10, 10)
@@ -156,26 +127,6 @@ class mmGUI_widget(wx.Frame):
             single_entry.Add(self.controls[key]['label_track_length_'+str(key)], 0, wx.LEFT | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
             single_entry.Add(self.controls[key]['dl_btn_'+str(key)], 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
             sizer_1.Add(single_entry, 1, wx.EXPAND, 0)
-
-
-        # entry_1.Add(self.label_track_id, 0, wx.LEFT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1.Add(self.label_track_title, 0, wx.LEFT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1.Add(self.label_track_length, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1.Add(self.button_1, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        # sizer_1.Add(entry_1, 1, wx.EXPAND, 0)
-        
-        # entry_1_copy.Add(self.label_track_id_copy, 0, wx.LEFT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1_copy.Add(self.label_track_title_copy, 0, wx.LEFT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1_copy.Add(self.label_track_length_copy, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1_copy.Add(self.button_1_copy, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        # sizer_1.Add(entry_1_copy, 1, wx.EXPAND, 0)
-        
-        # entry_1_copy_1.Add(self.label_track_id_copy_1, 0, wx.LEFT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1_copy_1.Add(self.label_track_title_copy_1, 0, wx.LEFT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1_copy_1.Add(self.label_track_length_copy_1, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # entry_1_copy_1.Add(self.button_1_copy_1, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        # sizer_1.Add(entry_1_copy_1, 1, wx.EXPAND, 0)
-        
 
         self.results_window.SetSizer(sizer_1)
         main_categories.Add(self.results_window, 0, wx.EXPAND, 0)
@@ -236,6 +187,24 @@ class mmGUI_widget(wx.Frame):
         self.queue += 1
         event.Skip()
 
+    # def doTranslate(self, Event):
+    #     self.controls = []
+    #     self.lang_count += 1
+    #     if self.lang_count%2 == 0:
+    #         self.lang = ['en_US']
+    #     else:
+    #         self.lang = ['ru_RU']
+    #     #initialize translation
+    #     t = gettext.translation('default','locales/',self.lang)
+    #     t.install()
+    #     _=t.ugettext
+
+    #     self.button_search.SetLabel(_("Search"))
+    #     self.label_results.SetLabel(_("Found "))
+    #     self.label_results_etext.SetLabel(_("music tracks"))
+    #     self.label_title.SetLabel(_("Title"))
+    #     self.label_length.SetLabel(_("Length"))
+
     def doRestart(self, event):  # wxGlade: mmGUI.<event_handler>
         print "Event handler `doRestart' not implemented!"
         event.Skip()
@@ -260,8 +229,6 @@ class mmGUI(wx.App):
 
 # end of class mmGUI
 if __name__ == "__main__":
-    # mmGUIv2 = wx.PySimpleApp(0)
-
     data={1:'test'}
     mmGUI_instance = mmGUI(0, data)
     mmGUI_instance.MainLoop()
